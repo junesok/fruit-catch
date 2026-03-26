@@ -83,6 +83,36 @@ h1 {
   margin-bottom: 40px;
 }
 
+/* Mode selector */
+.mode-selector {
+  display: flex;
+  gap: 8px;
+  background: #e5e5ea;
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--font);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+.mode-btn.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 1px 6px rgba(0,0,0,.12);
+}
+
 /* Time selector */
 .time-selector {
   display: flex;
@@ -218,6 +248,48 @@ h1 {
 
 #timer-value.urgent { color: #ff453a; }
 
+/* 2P HUD */
+#hud-2p {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(680px, 92vw);
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  z-index: 20;
+}
+
+.hud-player,
+.hud-center {
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: var(--radius-md);
+  padding: 10px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hud-player { flex: 1; }
+.hud-center { min-width: 80px; }
+
+#score-p1,
+#score-p2,
+#timer-value-2p {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+}
+
+#timer-value-2p.urgent { color: #ff453a; }
+
 /* Hand indicator */
 #hand-indicator {
   position: absolute;
@@ -302,6 +374,48 @@ h2 {
 }
 .fruit-chip .chip-emoji { font-size: 20px; }
 .fruit-chip .chip-count { font-weight: 600; color: var(--text-primary); }
+
+/* 2P result */
+#result-2p { width: 100%; margin-bottom: 36px; }
+
+.result-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.result-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.result-player-label {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.vs-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #c7c7cc;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+
+.result-winner {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -.01em;
+}
 
 .result-actions {
   display: flex;

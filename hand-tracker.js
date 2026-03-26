@@ -1,23 +1,25 @@
 /**
  * hand-tracker.js
- * MediaPipe Hands를 초기화하고, 손목(landmark 0)의
- * 정규화된 X 좌표(0~1)를 외부에 콜백으로 전달합니다.
+ * MediaPipe Hands를 초기화하고, 최대 2개 손목 좌표를
+ * X 기준으로 정렬해 외부에 콜백으로 전달합니다.
+ *
+ * onHandMove(hands)
+ *   hands[0] = 왼쪽 손 { x, y } 또는 null
+ *   hands[1] = 오른쪽 손 { x, y } 또는 null
  */
 
 class HandTracker {
   constructor() {
-    this.onHandMove   = null; // ({ x, y }: 0~1 each) => void
-    this.onHandDetect = null; // (detected: bool)      => void
+    this.onHandMove   = null; // (hands: [{x,y}|null, {x,y}|null]) => void
+    this.onHandDetect = null; // (count: 0|1|2) => void
     this._hands       = null;
     this._camera      = null;
     this._videoEl     = null;
     this._running     = false;
-    this._lastX       = 0.5;
-    this._lastY       = 0.8;
-    this._detected    = false;
+    this._lastHands   = [null, null];
+    this._detectedCount = 0;
   }
 
-  /** videoElement: <video id="webcam"> */
   async init(videoElement) {
     this._videoEl = videoElement;
 
@@ -27,8 +29,8 @@ class HandTracker {
     });
 
     this._hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 0,       // 0 = lite (빠름), 1 = full
+      maxNumHands: 2,
+      modelComplexity: 0,
       minDetectionConfidence: 0.6,
       minTrackingConfidence:  0.5,
     });
@@ -55,29 +57,41 @@ class HandTracker {
   }
 
   _onResults(results) {
-    const detected =
-      results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
+    const landmarks = results.multiHandLandmarks || [];
+    const count = landmarks.length;
 
-    if (detected !== this._detected) {
-      this._detected = detected;
-      if (this.onHandDetect) this.onHandDetect(detected);
+    if (count !== this._detectedCount) {
+      this._detectedCount = count;
+      if (this.onHandDetect) this.onHandDetect(count);
     }
 
-    if (!detected) return;
+    if (count === 0) {
+      this._lastHands = [null, null];
+      if (this.onHandMove) this.onHandMove([null, null]);
+      return;
+    }
 
-    // landmark 0 = 손목 중심
-    const wrist = results.multiHandLandmarks[0][0];
+    // 손목(landmark 0) 좌표 추출 — X 미러 처리
+    const points = landmarks.map(lm => ({
+      x: 1 - lm[0].x,   // 미러
+      y: lm[0].y,
+    }));
 
-    // MediaPipe는 미러되지 않은 좌표를 반환하므로
-    // 비디오가 CSS로 좌우반전되어 있어 X를 뒤집어야 합니다.
-    const mirroredX = 1 - wrist.x;
-    const y         = wrist.y;          // 0 = 화면 위, 1 = 화면 아래
+    // X 기준 오름차순 정렬 → [0]=왼쪽(작은 X), [1]=오른쪽(큰 X)
+    points.sort((a, b) => a.x - b.x);
 
-    this._lastX = mirroredX;
-    this._lastY = y;
-    if (this.onHandMove) this.onHandMove({ x: mirroredX, y });
+    const hands = [
+      points[0] || null,
+      points[1] || null,
+    ];
+
+    this._lastHands = hands;
+    if (this.onHandMove) this.onHandMove(hands);
   }
 
-  get lastX() { return this._lastX; }
-  get lastY() { return this._lastY; }
+  get lastHands() { return this._lastHands; }
+
+  // 1P 하위 호환용
+  get lastX() { return this._lastHands[0]?.x ?? 0.5; }
+  get lastY() { return this._lastHands[0]?.y ?? 0.8; }
 }
