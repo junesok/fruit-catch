@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fruit Catch</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── SCREEN 1: Start ── -->
+  <div id="screen-start" class="screen active">
+    <div class="start-inner">
+      <p class="eyebrow">Hand Motion Game</p>
+      <h1>Fruit<br>Catch</h1>
+      <p class="desc">손을 카메라에 보여주고<br>바구니를 움직여 과일을 담으세요.</p>
+
+      <div class="time-selector">
+        <button class="time-btn active" data-time="10">10s</button>
+        <button class="time-btn" data-time="30">30s</button>
+        <button class="time-btn" data-time="60">60s</button>
+      </div>
+
+      <button id="btn-start" class="primary-btn">시작하기</button>
+
+      <p class="cam-note" id="cam-status">카메라 권한이 필요합니다.</p>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: Game ── -->
+  <div id="screen-game" class="screen">
+
+    <!-- Webcam feed (mirrored, behind canvas) -->
+    <video id="webcam" autoplay playsinline muted></video>
+
+    <!-- Game canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div id="hud-score">
+        <span class="hud-label">Score</span>
+        <span id="score-value">0</span>
+      </div>
+      <div id="hud-timer">
+        <span class="hud-label">Time</span>
+        <span id="timer-value">--</span>
+      </div>
+    </div>
+
+    <!-- Hand tracking indicator -->
+    <div id="hand-indicator">
+      <span id="hand-dot"></span>
+      <span id="hand-label">손 인식 중...</span>
+    </div>
+
+  </div>
+
+  <!-- ── SCREEN 3: Result ── -->
+  <div id="screen-result" class="screen">
+    <div class="result-inner">
+      <p class="eyebrow">Game Over</p>
+      <h2 id="result-score">0</h2>
+      <p class="result-sub">개의 과일을 담았어요</p>
+      <div class="result-breakdown" id="result-breakdown"></div>
+      <div class="result-actions">
+        <button id="btn-retry" class="primary-btn">다시 하기</button>
+        <button id="btn-home" class="secondary-btn">처음으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+  <script src="hand-tracker.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
