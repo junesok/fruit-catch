@@ -240,7 +240,7 @@ function _spawnOne(owner, xMin, xMax) {
   const size     = isBomb ? 52 : Math.random() * 20 + 44;
   const elapsed  = selectedTime - timeLeft;
   const speedRamp= 1 + (elapsed / selectedTime) * 1.8;
-  const speed    = (canvas.height / 60) * (Math.random() * .105 + .105) * speedRamp;
+  const speed    = (canvas.height / 60) * (Math.random() * .21 + .21) * speedRamp;
   const margin   = size * .8;
   const xPos     = (xMin + margin) + Math.random() * ((xMax - xMin) - margin * 2);
 
