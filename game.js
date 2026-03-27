@@ -6,12 +6,12 @@
 
 /* ── 과일 정의 ── */
 const FRUITS = [
-  { key: 'orange',     points: 1, weight: 20 },
-  { key: 'grapes',     points: 2, weight: 15 },
-  { key: 'strawberry', points: 2, weight: 15 },
-  { key: 'cherry',     points: 3, weight: 10 },
-  { key: 'pineapple',  points: 3, weight: 10 },
-  { key: 'watermelon', points: 5, weight:  5 },
+  { key: 'orange',     points: 1, weight: 20, sizeScale: 1 },
+  { key: 'grapes',     points: 2, weight: 15, sizeScale: 1 },
+  { key: 'strawberry', points: 2, weight: 15, sizeScale: 1 },
+  { key: 'cherry',     points: 3, weight: 10, sizeScale: 1 },
+  { key: 'pineapple',  points: 3, weight: 10, sizeScale: 3 },
+  { key: 'watermelon', points: 5, weight:  5, sizeScale: 1 },
 ];
 
 /* ── 이미지 프리로드 ── */
@@ -302,8 +302,10 @@ function spawnFruit() {
 }
 
 function _spawnOne(owner, xMin, xMax) {
-  const isBomb    = Math.random() < .13;
-  const size      = isBomb ? 52 : Math.random() * 20 + 44;
+  const isBomb      = Math.random() < .13;
+  const selectedFruit = isBomb ? null : randomFruit();
+  const baseSize    = isBomb ? 52 : Math.random() * 20 + 44;
+  const size        = selectedFruit ? baseSize * selectedFruit.sizeScale : baseSize;
   const elapsed   = selectedTime - timeLeft;
   const speedRamp = 1 + (elapsed / selectedTime) * 1.8;
   const speed     = (canvas.height / 60) * (Math.random() * .21 + .21) * speedRamp;
@@ -318,7 +320,7 @@ function _spawnOne(owner, xMin, xMax) {
     wobble: (Math.random() - .5) * .8,
     isBomb,
     owner,
-    fruit:  isBomb ? null : randomFruit(),
+    fruit:  selectedFruit,
     angle:  Math.random() * Math.PI * 2,
     spin:   (Math.random() - .5) * .06,
   });
@@ -355,9 +357,11 @@ function endGame() {
 
 function _renderBreakdown(el, breakdown) {
   el.innerHTML = '';
+  // 과일 먼저
   for (const [key, count] of Object.entries(breakdown)) {
+    if (key === 'bomb' || !count) continue;
     const fruit = FRUITS.find(f => f.key === key);
-    if (!fruit || count === 0) continue;
+    if (!fruit) continue;
     const chip = document.createElement('div');
     chip.className = 'fruit-chip';
     const img = document.createElement('img');
@@ -367,6 +371,21 @@ function _renderBreakdown(el, breakdown) {
     const span = document.createElement('span');
     span.className = 'chip-count';
     span.textContent = `×${count}`;
+    chip.appendChild(span);
+    el.appendChild(chip);
+  }
+  // 폭탄 별도 행
+  const bombCount = breakdown['bomb'] || 0;
+  if (bombCount > 0) {
+    const chip = document.createElement('div');
+    chip.className = 'fruit-chip fruit-chip--bomb';
+    const img = document.createElement('img');
+    img.src = 'images/bomb.png';
+    img.style.cssText = 'width:24px;height:24px;object-fit:contain;vertical-align:middle';
+    chip.appendChild(img);
+    const span = document.createElement('span');
+    span.className = 'chip-count';
+    span.textContent = `×${bombCount}  (−${bombCount * 3}점)`;
     chip.appendChild(span);
     el.appendChild(chip);
   }
@@ -459,6 +478,7 @@ function update() {
         const pIdx = gameMode === '1p' ? 0 : f.owner;
         if (f.isBomb) {
           scores[pIdx] = Math.max(0, scores[pIdx] - 3);
+          catchBreakdowns[pIdx]['bomb'] = (catchBreakdowns[pIdx]['bomb'] || 0) + 1;
           _shakeScore(pIdx);
           spawnParticles(f.x, f.y, 'bomb', false);
         } else {

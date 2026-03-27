@@ -374,6 +374,7 @@ h2 {
 }
 .fruit-chip .chip-emoji { font-size: 20px; }
 .fruit-chip .chip-count { font-weight: 600; color: var(--text-primary); }
+.fruit-chip--bomb .chip-count { color: #ff3b30; }
 
 /* 2P result */
 #result-2p { width: 100%; margin-bottom: 36px; }
