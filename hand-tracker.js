@@ -71,10 +71,11 @@ class HandTracker {
       return;
     }
 
-    // 손목(landmark 0) 좌표 추출 — X 미러 처리
+    // 손목(landmark 0) 좌표 추출 — X 미러 처리, 21개 랜드마크 전달
     const points = landmarks.map(lm => ({
       x: 1 - lm[0].x,   // 미러
       y: lm[0].y,
+      lms: lm.map(pt => ({ x: 1 - pt.x, y: pt.y })),
     }));
 
     // X 기준 오름차순 정렬 → [0]=왼쪽(작은 X), [1]=오른쪽(큰 X)
